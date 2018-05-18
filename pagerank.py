@@ -70,10 +70,10 @@ class PageRank:
         data=self.data
         deg=self.deg
         pr=self.pr
-        for x1 in range(0,Q):
-            for y1 in range(0,Q):
-                for x2 in range(0,Ps):
-                    for y2 in range(0,Ps):
+        for y1 in range(0,Q):
+            for x1 in range(0,Q):
+                for y2 in range(0,Ps):
+                    for x2 in range(0,Ps):
                         # to do: tell mem/cache we want to access P(x2,y2) in Q(x1,y1)
                         for t in data[x1][y1][x2][y2]:
                             newpr[t[1]]+=(pr[t[0]]/deg[t[0]])
