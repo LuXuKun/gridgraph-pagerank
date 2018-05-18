@@ -2,13 +2,14 @@
 import visual
 
 class PageRank:
-    def __init__(self, P, Q, filename):
+    def __init__(self, P, Q, filename, GV):
         self.damping_factor=0.85
         self.max_iterations=200
         self.min_delta=0.00001
         self.Q=Q
         self.P=P
         self.filename=filename
+        self.GV = GV
         self.V=0
         self.data=[]
         self.pr=[]
@@ -70,12 +71,11 @@ class PageRank:
             yP=(edge[1]%hashQ)/hashP
             #HFQ:read edges
             address = self.getMemAddress(xQ, yQ, xP, yP)
-            self.readDisk(address)
+            # self.readDisk(address)
             self.data[xQ][yQ][xP][yP].append((edge[0],edge[1]))
             self.deg[edge[0]]+=1
             line=inputfile.readline()
         inputfile.close()
-
 
 
     # just used for test
@@ -109,7 +109,6 @@ class PageRank:
                             if GV:
                                 GV.highlight(t[0],t[1])
                             
-
 
     def StreamVertices(self,newpr):
         diff=0
@@ -189,35 +188,40 @@ class PageRank:
         return 0
 
     #@params
+    # SB HFQ luan gei can shu
     # cacheBegin: self.cacheBegin
     # cacheEnd: self.cacheEnd 
     # memBegin: self.memBegin
     # memEnd: self.memEnd
     def readCache(self, address):
-        pass
+        self.GV.readCache(address)
 
     def writeCache(self, address):
-        pass
+        self.GV.writeCache(address)
 
     def readMem(self, address):
         self.read_mem_time += 1
+        self.GV.readMemory(self.LLCbegin, address)
 
     def writeMem(self, address):
         self.write_mem_time += 1
+        self.GV.writeMemory(self.LLCbegin, address)
     
     def readDisk(self, address):
         self.read_disk_time += 1
+        self.GV.readDisk(self.LLCbegin, self.MEMbegin, address)
 
     def writeDisk(self, address):
         self.write_disk_time += 1
+        self.GV.writeDisk(self.LLCbegin, self.MEMbegin, address)
 
     def inLLC(self, x1, y1, x2, y2):
         address = self.getMemAddress(x1, y1, x2, y2)
-        return address >= self.LLCbegin and address <= self.LLCend
+        return address >= self.LLCbegin and address < self.LLCend
 
     def inMem(self, x1, y1, x2, y2):
         address = self.getMemAddress(x1, y1, x2, y2)
-        return address >= self.MEMbegin and address <= self.MEMend
+        return address >= self.MEMbegin and address < self.MEMend
 
     def readData(self, x1, y1, x2, y2):
         address = self.getMemAddress(x1, y1, x2, y2)
@@ -228,7 +232,7 @@ class PageRank:
             self.readMem(address)
             self.writeCache(address)
             self.LLCbegin = address
-            self.LLCend = address + LLCSize
+            self.LLCend = address + self.LLCSize
             return
         self.readDisk(address)
         self.writeMem(address)
