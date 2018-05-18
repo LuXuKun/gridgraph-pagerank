@@ -108,11 +108,7 @@ class PageRank:
             diff+=abs(newpr[i]-self.pr[i])
             #HFQ: update vertex write to disk
             #FIXME:
-            x1 = 0
-            y1 = 0
-            x2 = 0
-            y2 = 0
-            address = self.getMemAddress(x1, y1, x2, y2)
+            address = self.getMemAddressofVertex(i)
             self.writeDisk(address)
         return diff
 
@@ -137,6 +133,10 @@ class PageRank:
     # HFQ begin
     def getMemAddress(self, x1, y1, x2, y2):
         return x2 * self.Q + y2 + x1 * self.P + y1
+    
+    #Fix Me
+    def getMemAddressofVertex(self,i):
+        return 0
 
     #@params
     # cacheBegin: self.cacheBegin
