@@ -13,6 +13,20 @@ class PageRank:
         self.data=[]
         self.pr=[]
         self.deg=[]
+        
+        #HFQ begin
+        self.write_disk_time = 0
+        self.read_disk_time = 0
+        self.write_mem_time = 0
+        self.read_mem_time = 0
+        # memory address - P(x2, y2) in Q (x1, y1) = x1 * Q + y1 + x2 * P + y2
+        self.LLCbegin = 0
+        self.LLCend = 0
+        self.MEMbegin = 0
+        self.MEMend = 0
+        self.LLCSize = 0
+        self.MEMSize = 0
+        #HFQ end
 
     def getV(self):
         return self.V
@@ -43,6 +57,9 @@ class PageRank:
             yQ=edge[1]/hashQ
             xP=(edge[0]%hashQ)/hashP
             yP=(edge[1]%hashQ)/hashP
+            #HFQ:read edges
+            address = self.getMemAddress(xQ, yQ, xP, yP)
+            self.readDisk(address)
             self.data[xQ][yQ][xP][yP].append((edge[0],edge[1]))
             self.deg[edge[0]]+=1
             line=inputfile.readline()
@@ -76,6 +93,7 @@ class PageRank:
                     for x2 in range(0,Ps):
                         # to do: tell mem/cache we want to access P(x2,y2) in Q(x1,y1)
                         for t in data[x1][y1][x2][y2]:
+                            self.readData(x1, y1, x2, y2);
                             newpr[t[1]]+=(pr[t[0]]/deg[t[0]])
                             if GV:
                                 GV.highlight(t[0],t[1])
@@ -86,7 +104,16 @@ class PageRank:
         diff=0
         for i in range(0,self.V):
             newpr[i]=1-self.damping_factor+self.damping_factor*newpr[i]
+            # write disk
             diff+=abs(newpr[i]-self.pr[i])
+            #HFQ: update vertex write to disk
+            #FIXME:
+            x1 = 0
+            y1 = 0
+            x2 = 0
+            y2 = 0
+            address = self.getMemAddress(x1, y1, x2, y2)
+            self.writeDisk(address)
         return diff
 
 
@@ -106,3 +133,68 @@ class PageRank:
         print self.pr
         print 'finished after '+str(iterations)+' iterations'
 
+
+    # HFQ begin
+    def getMemAddress(self, x1, y1, x2, y2):
+        return x2 * self.Q + y2 + x1 * self.P + y1
+
+    #@params
+    # cacheBegin: self.cacheBegin
+    # cacheEnd: self.cacheEnd 
+    # memBegin: self.memBegin
+    # memEnd: self.memEnd
+    def readCache(self, address):
+        pass
+
+    def writeCache(self, address):
+        pass
+
+    def readMem(self, address):
+        self.read_mem_time += 1
+
+    def writeMem(self, address):
+        self.write_mem_time += 1
+    
+    def readDisk(self, address):
+        self.read_disk_time += 1
+
+    def writeDisk(self, address):
+        self.write_disk_time += 1
+
+    def inLLC(self, x1, y1, x2, y2):
+        address = self.getMemAddress(x1, y1, x2, y2)
+        return address >= self.LLCbegin and address <= self.LLCend
+
+    def inMem(self, x1, y1, x2, y2):
+        address = self.getMemAddress(x1, y1, x2, y2)
+        return address >= self.MEMbegin and address <= self.MEMend
+
+    def readData(self, x1, y1, x2, y2):
+        address = self.getMemAddress(x1, y1, x2, y2)
+        if self.inLLC(x1, y1, x2, y2):
+            self.readCache(address)
+            return
+        if self.inMem(x1, y1, x2, y2):
+            self.readMem(address)
+            self.writeCache(address)
+            self.LLCbegin = address
+            self.LLCend = address + LLCSize
+            return
+        self.readDisk(address)
+        self.writeMem(address)
+        self.writeCache(address)
+        self.LLCbegin = address
+        self.LLCend = address + self.LLCSize
+        self.MEMbegin = address
+        self.MEMend = address + self.MEMSize
+
+    def writeData(self, x1, y1, x2, y2):
+        address = self.getMemAddress(x1, y1, x2, y2)
+        if self.inLLC(x1, y1, x2, y2):
+            self.writeCache(address)
+            return
+        if self.inMem(x1, y1, x2, y2):
+            self.writeMem(address)
+            return
+        self.writeDisk(address)
+    # HFQ end
