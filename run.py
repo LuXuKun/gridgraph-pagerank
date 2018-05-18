@@ -14,4 +14,7 @@ if __name__ == "__main__":
 
     GV=visual.GV(pagerank.getV(),cacheSize,memorySize,P,Q)
 
-    pagerank.do_pagerank(GV)
+    #pagerank.do_pagerank(GV)
+    #added by luxu, run pagerank per grid
+    for i in range(100):
+        pagerank.do_pagerank_per_grid(GV)

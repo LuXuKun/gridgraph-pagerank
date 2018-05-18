@@ -14,6 +14,16 @@ class PageRank:
         self.pr=[]
         self.deg=[]
         
+        #added by luxu, used for run pagerank per grid
+        self.converged=0
+        self.iterations=0
+        self.newpr=[]
+        self.xQ=0
+        self.yQ=0
+        self.xP=0
+        self.yP=0
+        #end by luxu
+        
         #HFQ begin
         self.write_disk_time = 0
         self.read_disk_time = 0
@@ -43,6 +53,7 @@ class PageRank:
         
         self.V=map(int,line.split())[0]
         self.pr=[1.0 for i in range(0,self.V)]
+        self.newpr=[0.0 for i in range(0,self.V)]
         self.deg=[0 for i in range(0,self.V)]
 
         hashQ=self.V/self.Q
@@ -128,6 +139,45 @@ class PageRank:
             iterations+=1
         print self.pr
         print 'finished after '+str(iterations)+' iterations'
+
+
+    def do_pagerank_per_grid(self,GV=None):
+        if self.converged:
+            print self.pr
+            print 'finished after '+str(self.iterations)+' iterations!'
+            return
+        if self.iterations > self.max_iterations:
+            print 'iteration time has exceeded!'
+            return
+        for tu in self.data[self.xQ][self.yQ][self.xP][self.yP]:
+            self.newpr[tu[1]]+=(self.pr[tu[0]]/self.deg[tu[0]])
+            if GV:
+                GV.highlight(tu[0],tu[1])
+        Ps=self.P/self.Q
+
+        self.xP += 1
+        if self.xP >= Ps:
+            self.xP=0
+            self.yP+=1
+        if self.yP >=Ps:
+            self.yP=0
+            self.xQ+=1
+        if self.xQ >= self.Q:
+            self.xQ=0
+            self.yQ+=1
+        if self.yQ >= self.Q:
+            self.xQ=0
+            self.yQ=0
+            self.xP=0
+            self.yP=0
+            diff=self.StreamVertices(self.newpr)
+            self.pr=self.newpr
+            self.newpr=[0.0 for i in range(0,self.V)]
+            self.converged=(diff/self.V)<=self.min_delta
+            self.iterations+=1
+            if self.converged:
+                print self.pr
+                print 'finished after '+str(self.iterations)+' iterations!'
 
 
     # HFQ begin
