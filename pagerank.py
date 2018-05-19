@@ -148,6 +148,7 @@ class PageRank:
         if self.iterations > self.max_iterations:
             print 'iteration time has exceeded!'
             return
+        #print 'x1: '+str(self.xQ)+' y1: '+str(self.yQ)+' x2: '+str(self.xP)+' y2: '+str(self.yP)
         for tu in self.data[self.xQ][self.yQ][self.xP][self.yP]:
             self.newpr[tu[1]]+=(self.pr[tu[0]]/self.deg[tu[0]])
             if GV:
@@ -177,6 +178,13 @@ class PageRank:
             if self.converged:
                 print self.pr
                 print 'finished after '+str(self.iterations)+' iterations!'
+
+
+
+    def do_pagerank_per_grid_continue(self,GV):
+        while (not self.converged) and (self.iterations <= self.max_iterations):
+            self.do_pagerank_per_grid(GV)
+
 
 
     # HFQ begin

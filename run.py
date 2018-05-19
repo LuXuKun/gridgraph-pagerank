@@ -22,11 +22,11 @@ if __name__ == "__main__":
 
     # pagerank.do_pagerank(GV)
     # Change the 1st parameter of the following function to "next step". DO NOT delete lambda
-    GV.setButton(lambda: 1, lambda: pagerank.do_pagerank(GV))
+    GV.setButton(lambda: pagerank.do_pagerank_per_grid(GV), lambda: pagerank.do_pagerank_per_grid_continue(GV))
 
     #pagerank.do_pagerank(GV)
     #added by luxu, run pagerank per grid
-    for i in range(100):
-        pagerank.do_pagerank_per_grid(GV)
+    #for i in range(100):
+    #    pagerank.do_pagerank_per_grid(GV)
     
     GV.draw()
