@@ -17,7 +17,7 @@ if __name__ == "__main__":
     inputfile.close()
     GV = visual.GV(sizeV,cacheSize,memorySize,P,Q)
 
-    pagerank=pagerank.PageRank(P,Q,filename,GV)
+    pagerank=pagerank.PageRank(P,Q,filename,GV,cacheSize,memorySize)
     pagerank.preprocess()
 
     # pagerank.do_pagerank(GV)

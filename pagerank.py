@@ -2,7 +2,7 @@
 import visual
 
 class PageRank:
-    def __init__(self, P, Q, filename, GV):
+    def __init__(self, P, Q, filename, GV, cacheSize, memSize):
         self.damping_factor=0.85
         self.max_iterations=200
         self.min_delta=0.00001
@@ -23,6 +23,8 @@ class PageRank:
         self.yQ=0
         self.xP=0
         self.yP=0
+        self.cacheSize=cacheSize
+        self.memSize=memSize
         #end by luxu
         
         #HFQ begin
@@ -150,6 +152,7 @@ class PageRank:
             return
         #print 'x1: '+str(self.xQ)+' y1: '+str(self.yQ)+' x2: '+str(self.xP)+' y2: '+str(self.yP)
         for tu in self.data[self.xQ][self.yQ][self.xP][self.yP]:
+            self.readData(self.xQ,self.yQ,self.xP,self.yP);
             self.newpr[tu[1]]+=(self.pr[tu[0]]/self.deg[tu[0]])
             if GV:
                 GV.highlight(tu[0],tu[1])
