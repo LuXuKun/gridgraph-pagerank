@@ -8,8 +8,8 @@ filename = 'input'
 if __name__ == "__main__":
     P=2
     Q=1
-    cacheSize=1
-    memorySize=1
+    cacheSize=2
+    memorySize=4
 
     inputfile = open(filename, "r")
     line = inputfile.readline()

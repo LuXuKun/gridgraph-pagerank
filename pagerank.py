@@ -23,8 +23,6 @@ class PageRank:
         self.yQ=0
         self.xP=0
         self.yP=0
-        self.cacheSize=cacheSize
-        self.memSize=memSize
         #end by luxu
         
         #HFQ begin
@@ -37,8 +35,8 @@ class PageRank:
         self.LLCend = 0
         self.MEMbegin = 0
         self.MEMend = 0
-        self.LLCSize = 0
-        self.MEMSize = 0
+        self.LLCSize = cacheSize
+        self.MEMSize = memSize
         #HFQ end
 
     def getV(self):
