@@ -141,7 +141,8 @@ class PageRank:
         print 'finished after '+str(iterations)+' iterations'
 
 
-    def do_pagerank_per_grid(self,GV=None,index=0):
+    def do_pagerank_per_grid(self,GV=None,index=0,rankContinue=False):
+        # print "per grid index:{} continue:{} {} {}".format(index, rankContinue, self.xP, self.yP)
         if self.converged:
             print self.pr
             print 'finished after '+str(self.iterations)+' iterations!'
@@ -150,16 +151,21 @@ class PageRank:
             print 'iteration time has exceeded!'
             return
         #print 'x1: '+str(self.xQ)+' y1: '+str(self.yQ)+' x2: '+str(self.xP)+' y2: '+str(self.yP)
-        i = 0
+        i = -1
         for tu in self.data[self.xQ][self.yQ][self.xP][self.yP]:
+            i += 1
             if (i < index):
                 continue
-            i += 1
             self.readData(self.xQ,self.yQ,self.xP,self.yP);
             self.newpr[tu[1]]+=(self.pr[tu[0]]/self.deg[tu[0]])
             if GV:
                 GV.highlight(tu[0],tu[1])
-                GV.sleep(lambda: self.do_pagerank_per_grid(GV, i))
+                if i == len(self.data[self.xQ][self.yQ][self.xP][self.yP]) - 1:
+                    break
+                if rankContinue:
+                    GV.sleep(1, lambda: self.do_pagerank_per_grid_continue(GV, index + 1))
+                else:
+                    GV.sleep(300, lambda: self.do_pagerank_per_grid(GV, index + 1))
         Ps=self.P/self.Q
 
         self.xP += 1
@@ -186,13 +192,11 @@ class PageRank:
                 print self.pr
                 print 'finished after '+str(self.iterations)+' iterations!'
 
-
-
-    def do_pagerank_per_grid_continue(self,GV):
+    def do_pagerank_per_grid_continue(self,GV,index=0):
+        if (index):
+             self.do_pagerank_per_grid(GV,index,True)           
         while (not self.converged) and (self.iterations <= self.max_iterations):
-            self.do_pagerank_per_grid(GV)
-
-
+            self.do_pagerank_per_grid(GV,0,True)
 
     # HFQ begin
     def getMemAddress(self, x1, y1, x2, y2):

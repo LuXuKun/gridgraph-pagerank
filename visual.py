@@ -186,27 +186,27 @@ class GV(GV_interface):
         self.cv.itemconfig('CMDhighlight', width=0)
     
     def readCache(self, v):
-        print "readCache {}".format(v)
+        # print "readCache {}".format(v)
         self.highlightCache(v - cacheBegin)
 
     def writeCache(self, v):
-        print "writeCache {}".format(v)
+        # print "writeCache {}".format(v)
         self.highlightCache(v - cacheBegin)
 
     def readMemory(self, curCacheBegin, v):
-        print "readMemory {} {}".format(curCacheBegin, v)
+        # print "readMemory {} {}".format(curCacheBegin, v)
         self.updateCacheReadMiss()
         self.setCacheBegin(curCacheBegin)
         self.highlightMemory(v - memoryBegin)
 
     def writeMemory(self, curCacheBegin, v):
-        print "writeMemory {} {}".format(curCacheBegin, v)
+        # print "writeMemory {} {}".format(curCacheBegin, v)
         self.updateCacheWriteMiss()
         self.setCacheBegin(curCacheBegin)
         self.highlightMemory(v - memoryBegin)
 
     def readDisk(self, curCacheBegin, curMemoryBegin, v):
-        print "readDisk {} {} {}".format(curCacheBegin, curMemoryBegin, v)
+        # print "readDisk {} {} {}".format(curCacheBegin, curMemoryBegin, v)
         self.updateCacheReadMiss()
         self.updateMemoryReadMiss()
         self.setCacheBegin(curCacheBegin)
@@ -214,7 +214,7 @@ class GV(GV_interface):
         self.highlightDisk(v)
 
     def writeDisk(self, curCacheBegin, curMemoryBegin, v):
-        print "writeDisk {} {} {}".format(curCacheBegin, curMemoryBegin, v)
+        # print "writeDisk {} {} {}".format(curCacheBegin, curMemoryBegin, v)
         self.updateCacheWriteMiss()
         self.updateMemoryWriteMiss()
         self.setCacheBegin(curCacheBegin)
@@ -260,17 +260,17 @@ class GV(GV_interface):
                                 text=str(i + v), tags=("memorytext"))     
 
     def highlightCache(self, index):
-        print "highlightCache {}".format(index)
+        # print "highlightCache {}".format(index)
         self.highlightCMD(cacheLeft + index % CMDBlockNum * CMDBlockWidth,
                           cacheUp + index / CMDBlockNum * CMDBlockWidth)
         
     def highlightMemory(self, index):
-        print "highlightMemory {}".format(index)
+        # print "highlightMemory {}".format(index)
         self.highlightCMD(memoryLeft + index % CMDBlockNum * CMDBlockWidth,
                           memoryUp + index / CMDBlockNum * CMDBlockWidth)
         
     def highlightDisk(self, v):
-        print "highlightDisk {}".format(v)
+        # print "highlightDisk {}".format(v)
         self.highlightCMD(diskLeft + v % CMDBlockNum * CMDBlockWidth,
                           diskUp + v / CMDBlockNum * CMDBlockWidth)
 
@@ -285,7 +285,7 @@ class GV(GV_interface):
     def draw(self):
         self.root.mainloop()
 
-    def sleep(self, func):
-        self.root.after(400, func)
+    def sleep(self, time, func):
+        self.root.after(time, func)
         self.root.mainloop()
 
