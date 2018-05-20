@@ -156,9 +156,11 @@ class PageRank:
             i += 1
             if (i < index):
                 continue
+
             self.readData(self.xQ,self.yQ,self.xP,self.yP);
             self.newpr[tu[1]]+=(self.pr[tu[0]]/self.deg[tu[0]])
             if GV:
+                # print 'edge is '+str(tu[0])+','+str(tu[1])
                 GV.highlight(tu[0],tu[1])
                 if i == len(self.data[self.xQ][self.yQ][self.xP][self.yP]) - 1:
                     break
@@ -166,6 +168,7 @@ class PageRank:
                     GV.sleep(1, lambda: self.do_pagerank_per_grid_continue(GV, index + 1))
                 else:
                     GV.sleep(300, lambda: self.do_pagerank_per_grid(GV, index + 1))
+
         Ps=self.P/self.Q
 
         self.xP += 1
