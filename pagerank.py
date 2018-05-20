@@ -238,18 +238,18 @@ class PageRank:
             self.readCache(address)
             return
         if self.inMem(x1, y1, x2, y2):
-            self.readMem(address)
-            self.writeCache(address)
             self.LLCbegin = address
             self.LLCend = address + self.LLCSize
+            self.readMem(address)
+            self.writeCache(address)
             return
-        self.readDisk(address)
-        self.writeMem(address)
-        self.writeCache(address)
         self.LLCbegin = address
         self.LLCend = address + self.LLCSize
         self.MEMbegin = address
         self.MEMend = address + self.MEMSize
+        self.readDisk(address)
+        self.writeMem(address)
+        self.writeCache(address)
 
     def writeData(self, x1, y1, x2, y2):
         address = self.getMemAddress(x1, y1, x2, y2)
