@@ -152,14 +152,15 @@ class PageRank:
         #print 'x1: '+str(self.xQ)+' y1: '+str(self.yQ)+' x2: '+str(self.xP)+' y2: '+str(self.yP)
         i = 0
         for tu in self.data[self.xQ][self.yQ][self.xP][self.yP]:
-            if (i < index):
-                continue
-            i += 1
+            #if (i < index):
+            #    continue
+            #i += 1
             self.readData(self.xQ,self.yQ,self.xP,self.yP);
             self.newpr[tu[1]]+=(self.pr[tu[0]]/self.deg[tu[0]])
             if GV:
+                print 'edge is '+str(tu[0])+','+str(tu[1])
                 GV.highlight(tu[0],tu[1])
-                GV.sleep(lambda: self.do_pagerank_per_grid(GV, i))
+                #GV.sleep(lambda: self.do_pagerank_per_grid(GV, i))
         Ps=self.P/self.Q
 
         self.xP += 1
