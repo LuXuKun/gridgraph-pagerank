@@ -148,19 +148,20 @@ class GV(GV_interface):
         self.cv.create_rectangle(0, 0, CMDBlockWidth, CMDBlockWidth, outline='red',
                                  width=0, tags=("CMDhighlight"))
 
+        font_size = 15
         # cache miss
         self.cv.create_text(cacheLeft + 60, cacheUp + CMDBlockWidth + 50,
-                            text="read miss: " + str(0), font=("", 20), tags=("crm"))
-        self.cv.create_text(cacheLeft + 250, cacheUp + CMDBlockWidth + 50,
-                            text="write miss: " + str(0), font=("", 20), tags=("cwm"))
+                            text="read miss: " + str(0), font=("", font_size), tags=("crm"))
+        self.cv.create_text(cacheLeft + 270, cacheUp + CMDBlockWidth + 50,
+                            text="write miss: " + str(0), font=("", font_size), tags=("cwm"))
 
         # memory miss
         self.cv.create_text(memoryLeft + 60,
                             memoryUp + math.ceil(1. * memorySize / CMDBlockNum) * CMDBlockWidth + 50,
-                            text="read miss: " + str(0), font=("", 20), tags=("mrm"))
-        self.cv.create_text(memoryLeft + 250,
+                            text="read miss: " + str(0), font=("", font_size), tags=("mrm"))
+        self.cv.create_text(memoryLeft + 270,
                             memoryUp + math.ceil(1. * memorySize / CMDBlockNum) * CMDBlockWidth + 50,
-                            text="write miss: " + str(0), font=("", 20), tags=("mwm"))
+                            text="write miss: " + str(0), font=("", font_size), tags=("mwm"))
 
         # self.highlightCache(0)
         self.nextButton = Button(self.root, text ="next")
@@ -240,7 +241,7 @@ class GV(GV_interface):
     def updateMemoryWriteMiss(self):
         global memoryWriteMiss
         memoryWriteMiss += 1
-        self.cv.itemconfig('mwm', text="read miss: " + str(memoryWriteMiss))
+        self.cv.itemconfig('mwm', text="write miss: " + str(memoryWriteMiss))
 
     def setCacheBegin(self, v):
         global cacheBegin
