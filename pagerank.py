@@ -142,7 +142,9 @@ class PageRank:
 
 
     def do_pagerank_per_grid(self,GV=None,index=0,rankContinue=False):
-        # print "per grid index:{} continue:{} {} {}".format(index, rankContinue, self.xP, self.yP)
+        print "per grid index:{} continue:{} {} {}".format(index, rankContinue, self.xP, self.yP)
+        nextTimeInterval = 300
+        continueTimeInterval = 1
         if self.converged:
             print self.pr
             print 'finished after '+str(self.iterations)+' iterations!'
@@ -160,14 +162,15 @@ class PageRank:
             self.readData(self.xQ,self.yQ,self.xP,self.yP);
             self.newpr[tu[1]]+=(self.pr[tu[0]]/self.deg[tu[0]])
             if GV:
-                # print 'edge is '+str(tu[0])+','+str(tu[1])
+                print 'edge is '+str(tu[0])+','+str(tu[1])
                 GV.highlight(tu[0],tu[1])
                 if i == len(self.data[self.xQ][self.yQ][self.xP][self.yP]) - 1:
                     break
                 if rankContinue:
-                    GV.sleep(1, lambda: self.do_pagerank_per_grid_continue(GV, index + 1))
+                    GV.sleep(continueTimeInterval, lambda: self.do_pagerank_per_grid_continue(GV, index + 1))
                 else:
-                    GV.sleep(300, lambda: self.do_pagerank_per_grid(GV, index + 1))
+                    GV.sleep(nextTimeInterval, lambda: self.do_pagerank_per_grid(GV, index + 1))
+                return
 
         Ps=self.P/self.Q
 
@@ -194,12 +197,18 @@ class PageRank:
             if self.converged:
                 print self.pr
                 print 'finished after '+str(self.iterations)+' iterations!'
+        
+        if rankContinue and (not self.converged) and (self.iterations <= self.max_iterations):
+            GV.sleep(continueTimeInterval, lambda: self.do_pagerank_per_grid_continue(GV, 0))
 
     def do_pagerank_per_grid_continue(self,GV,index=0):
-        if (index):
-             self.do_pagerank_per_grid(GV,index,True)           
-        while (not self.converged) and (self.iterations <= self.max_iterations):
-            self.do_pagerank_per_grid(GV,0,True)
+        print "continue index:{} {} {}".format(index, self.xP, self.yP)
+        # if (index):
+        #      self.do_pagerank_per_grid(GV,index,True)           
+        # while (not self.converged) and (self.iterations <= self.max_iterations):
+        #     self.do_pagerank_per_grid(GV,0,True)
+        self.do_pagerank_per_grid(GV,index,True)           
+
 
     # HFQ begin
     def getMemAddress(self, x1, y1, x2, y2):
