@@ -186,9 +186,11 @@ class GV(GV_interface):
         self.cv.itemconfig('CMDhighlight', width=0)
     
     def readCache(self, v):
+        print "readCache {}".format(v)
         self.highlightCache(v - cacheBegin)
 
     def writeCache(self, v):
+        print "writeCache {}".format(v)
         self.highlightCache(v - cacheBegin)
 
     def readMemory(self, curCacheBegin, v):
@@ -281,5 +283,9 @@ class GV(GV_interface):
         self.continueButton.configure(command = continueFunc)
 
     def draw(self):
+        self.root.mainloop()
+
+    def sleep(self, func):
+        self.root.after(400, func)
         self.root.mainloop()
 
