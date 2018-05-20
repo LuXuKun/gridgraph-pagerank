@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import visual
+import time
 
 class PageRank:
     def __init__(self, P, Q, filename, GV, cacheSize, memSize):
@@ -140,7 +141,7 @@ class PageRank:
         print 'finished after '+str(iterations)+' iterations'
 
 
-    def do_pagerank_per_grid(self,GV=None):
+    def do_pagerank_per_grid(self,GV=None,index=0):
         if self.converged:
             print self.pr
             print 'finished after '+str(self.iterations)+' iterations!'
@@ -149,11 +150,16 @@ class PageRank:
             print 'iteration time has exceeded!'
             return
         #print 'x1: '+str(self.xQ)+' y1: '+str(self.yQ)+' x2: '+str(self.xP)+' y2: '+str(self.yP)
+        i = 0
         for tu in self.data[self.xQ][self.yQ][self.xP][self.yP]:
+            if (i < index):
+                continue
+            i += 1
             self.readData(self.xQ,self.yQ,self.xP,self.yP);
             self.newpr[tu[1]]+=(self.pr[tu[0]]/self.deg[tu[0]])
             if GV:
                 GV.highlight(tu[0],tu[1])
+                GV.sleep(lambda: self.do_pagerank_per_grid(GV, i))
         Ps=self.P/self.Q
 
         self.xP += 1
