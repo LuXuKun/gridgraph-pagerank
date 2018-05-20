@@ -257,7 +257,13 @@ class PageRank:
             self.writeCache(address)
             return
         if self.inMem(x1, y1, x2, y2):
+            self.LLCbegin = address
+            self.LLCend = address + self.LLCSize
             self.writeMem(address)
             return
+        self.LLCbegin = address
+        self.LLCend = address + self.LLCSize
+        self.MEMbegin = address
+        self.MEMend = address + self.MEMSize
         self.writeDisk(address)
     # HFQ end
