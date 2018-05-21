@@ -15,7 +15,7 @@ class PageRank:
         self.data=[]
         self.pr=[]
         self.deg=[]
-        
+
         #added by luxu, used for run pagerank per grid
         self.converged=0
         self.iterations=0
@@ -25,7 +25,7 @@ class PageRank:
         self.xP=0
         self.yP=0
         #end by luxu
-        
+
         #HFQ begin
         self.write_disk_time = 0
         self.read_disk_time = 0
@@ -52,11 +52,11 @@ class PageRank:
         tmp=self.P/self.Q
         for i in range(0,self.Q):
             for j in range(0,self.Q):
-                self.data[i][j]=[[[] for i1 in range(0,tmp)] for j1 in range(0,tmp)] 
+                self.data[i][j]=[[[] for i1 in range(0,tmp)] for j1 in range(0,tmp)]
 
         inputfile=open(self.filename,"r")
         line=inputfile.readline()
-        
+
         self.V=map(int,line.split())[0]
         self.pr=[1.0 for i in range(0,self.V)]
         self.newpr=[0.0 for i in range(0,self.V)]
@@ -115,7 +115,7 @@ class PageRank:
 			    self.writeVertice(t[1])
                             if GV:
                                 GV.highlight(t[0],t[1])
-                            
+
 
     def StreamVertices(self,newpr):
         diff=0
@@ -147,7 +147,7 @@ class PageRank:
     def do_pagerank_per_grid(self,GV=None,index=0,rankContinue=False):
         print "per grid index:{} continue:{} {} {}".format(index, rankContinue, self.xP, self.yP)
         nextTimeInterval = 100
-        continueTimeInterval = 0
+        continueTimeInterval = 1
         if self.converged:
             print self.pr
             print 'finished after '+str(self.iterations)+' iterations!'
@@ -202,23 +202,23 @@ class PageRank:
             if self.converged:
                 print self.pr
                 print 'finished after '+str(self.iterations)+' iterations!'
-        
+
         if rankContinue and (not self.converged) and (self.iterations <= self.max_iterations):
             GV.sleep(continueTimeInterval, lambda: self.do_pagerank_per_grid_continue(GV, 0))
 
     def do_pagerank_per_grid_continue(self,GV,index=0):
         print "continue index:{} {} {}".format(index, self.xP, self.yP)
         # if (index):
-        #      self.do_pagerank_per_grid(GV,index,True)           
+        #      self.do_pagerank_per_grid(GV,index,True)
         # while (not self.converged) and (self.iterations <= self.max_iterations):
         #     self.do_pagerank_per_grid(GV,0,True)
-        self.do_pagerank_per_grid(GV,index,True)           
+        self.do_pagerank_per_grid(GV,index,True)
 
 
     # HFQ begin
     def getMemAddress(self, x1, y1, x2, y2):
         return x2 * self.Q + y2 + x1 * self.P + y1
-    
+
     #Fix Me
     def getMemAddressofVertex(self,i):
         return i
@@ -226,7 +226,7 @@ class PageRank:
     #@params
     # SB HFQ luan gei can shu
     # cacheBegin: self.cacheBegin
-    # cacheEnd: self.cacheEnd 
+    # cacheEnd: self.cacheEnd
     # memBegin: self.memBegin
     # memEnd: self.memEnd
     def readCache(self, address):
@@ -242,7 +242,7 @@ class PageRank:
     def writeMem(self, address):
         self.write_mem_time += 1
         self.GV.writeMemory(self.LLCbegin1, address)
-    
+
     def readDisk(self, address):
         self.read_disk_time += 1
         self.GV.readDisk(self.LLCbegin, self.MEMbegin, address)
@@ -260,7 +260,7 @@ class PageRank:
     def inMem(self, address):
 #        address = self.getMemAddress(x1, y1, x2, y2)
         return address >= self.MEMbegin and address < self.MEMend
-    
+
     def inLLC1(self, address):
 #       address = self.getMemAddress(x1, y1, x2, y2)
         return address >= self.LLCbegin1 and address < self.LLCend1
@@ -289,7 +289,7 @@ class PageRank:
         self.readDisk(address)
         self.writeMem(address)
         self.writeCache(address)
-    
+
     def writeVertice(self, i):
         print "###########################################################WriteVertice",i
         address = self.getMemAddressofVertex(i)
