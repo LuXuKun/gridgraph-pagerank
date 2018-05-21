@@ -32,6 +32,10 @@ class PageRank:
         self.write_mem_time = 0
         self.read_mem_time = 0
         # memory address - P(x2, y2) in Q (x1, y1) = x1 * Q + y1 + x2 * P + y2
+        self.LLCbegin1 = 0
+        self.LLCend1 = 0
+        self.MEMbegin1 = 0
+        self.MEMend1 = 0
         self.LLCbegin = 0
         self.LLCend = 0
         self.MEMbegin = 0
@@ -105,8 +109,10 @@ class PageRank:
                     for x2 in range(0,Ps):
                         # to do: tell mem/cache we want to access P(x2,y2) in Q(x1,y1)
                         for t in data[x1][y1][x2][y2]:
-                            self.readData(x1, y1, x2, y2);
+                            #self.readData(x1, y1, x2, y2);
                             newpr[t[1]]+=(pr[t[0]]/deg[t[0]])
+			    self.readVertice(t[0])
+			    self.writeVertice(t[1])
                             if GV:
                                 GV.highlight(t[0],t[1])
                             
@@ -115,12 +121,9 @@ class PageRank:
         diff=0
         for i in range(0,self.V):
             newpr[i]=1-self.damping_factor+self.damping_factor*newpr[i]
-            # write disk
             diff+=abs(newpr[i]-self.pr[i])
-            #HFQ: update vertex write to disk
-            #FIXME:
             address = self.getMemAddressofVertex(i)
-            self.writeDisk(address)
+            self.readDisk(address)
         return diff
 
 
@@ -159,8 +162,10 @@ class PageRank:
             if (i < index):
                 continue
 
-            self.readData(self.xQ,self.yQ,self.xP,self.yP);
+            #self.readData(self.xQ,self.yQ,self.xP,self.yP);
             self.newpr[tu[1]]+=(self.pr[tu[0]]/self.deg[tu[0]])
+            self.readVertice(tu[0])
+            self.writeVertice(tu[1])
             if GV:
                 print 'edge is '+str(tu[0])+','+str(tu[1])
                 GV.highlight(tu[0],tu[1])
@@ -216,7 +221,7 @@ class PageRank:
     
     #Fix Me
     def getMemAddressofVertex(self,i):
-        return 0
+        return i
 
     #@params
     # SB HFQ luan gei can shu
@@ -236,7 +241,7 @@ class PageRank:
 
     def writeMem(self, address):
         self.write_mem_time += 1
-        self.GV.writeMemory(self.LLCbegin, address)
+        self.GV.writeMemory(self.LLCbegin1, address)
     
     def readDisk(self, address):
         self.read_disk_time += 1
@@ -244,48 +249,97 @@ class PageRank:
 
     def writeDisk(self, address):
         self.write_disk_time += 1
-        self.GV.writeDisk(self.LLCbegin, self.MEMbegin, address)
+        self.GV.writeDisk(self.LLCbegin1, self.MEMbegin1, address)
 
-    def inLLC(self, x1, y1, x2, y2):
-        address = self.getMemAddress(x1, y1, x2, y2)
+    #def inLLC(self, x1, y1, x2, y2):
+    def inLLC(self, address):
+#       address = self.getMemAddress(x1, y1, x2, y2)
         return address >= self.LLCbegin and address < self.LLCend
 
-    def inMem(self, x1, y1, x2, y2):
-        address = self.getMemAddress(x1, y1, x2, y2)
+    #def inMem(self, x1, y1, x2, y2):
+    def inMem(self, address):
+#        address = self.getMemAddress(x1, y1, x2, y2)
         return address >= self.MEMbegin and address < self.MEMend
+    
+    def inLLC1(self, address):
+#       address = self.getMemAddress(x1, y1, x2, y2)
+        return address >= self.LLCbegin1 and address < self.LLCend1
 
-    def readData(self, x1, y1, x2, y2):
-        address = self.getMemAddress(x1, y1, x2, y2)
-        if self.inLLC(x1, y1, x2, y2):
+    #def inMem(self, x1, y1, x2, y2):
+    def inMem1(self, address):
+#        address = self.getMemAddress(x1, y1, x2, y2)
+        return address >= self.MEMbegin1 and address < self.MEMend1
+
+    def readVertice(self, i):
+        print "==================================================================ReadVertice",i
+        address = self.getMemAddressofVertex(i)
+        if self.inLLC(address):
             self.readCache(address)
             return
-        if self.inMem(x1, y1, x2, y2):
-            self.LLCbegin = address
-            self.LLCend = address + self.LLCSize
+        if self.inMem(address):
+            self.LLCbegin = address - address % self.LLCSize
+            self.LLCend = self.LLCbegin + self.LLCSize
             self.readMem(address)
             self.writeCache(address)
             return
-        self.LLCbegin = address
-        self.LLCend = address + self.LLCSize
-        self.MEMbegin = address
-        self.MEMend = address + self.MEMSize
+        self.LLCbegin = address - address % self.LLCSize
+        self.LLCend = self.LLCbegin + self.LLCSize
+        self.MEMbegin = address - address % self.MEMSize
+        self.MEMend = self.MEMbegin + self.MEMSize
         self.readDisk(address)
         self.writeMem(address)
         self.writeCache(address)
-
-    def writeData(self, x1, y1, x2, y2):
-        address = self.getMemAddress(x1, y1, x2, y2)
-        if self.inLLC(x1, y1, x2, y2):
+    
+    def writeVertice(self, i):
+        print "###########################################################WriteVertice",i
+        address = self.getMemAddressofVertex(i)
+        if self.inLLC1(address):
             self.writeCache(address)
             return
-        if self.inMem(x1, y1, x2, y2):
-            self.LLCbegin = address
-            self.LLCend = address + self.LLCSize
+        if self.inMem1(address):
+            self.LLCbegin1 = address - address % self.LLCSize
+            self.LLCend1 = self.LLCbegin1 + self.LLCSize
             self.writeMem(address)
             return
-        self.LLCbegin = address
-        self.LLCend = address + self.LLCSize
-        self.MEMbegin = address
-        self.MEMend = address + self.MEMSize
+        self.LLCbegin1 = address - address % self.LLCSize
+        self.LLCend1 = self.LLCbegin1 + self.LLCSize
+        self.MEMbegin1 = address - address % self.MEMSize
+        self.MEMend1 = self.MEMbegin1 + self.MEMSize
         self.writeDisk(address)
-    # HFQ end
+
+#
+#    def readData(self, x1, y1, x2, y2):
+#        address = self.getMemAddress(x1, y1, x2, y2)
+#        if self.inLLC(x1, y1, x2, y2):
+#            self.readCache(address)
+#            return
+#        if self.inMem(x1, y1, x2, y2):
+#            self.LLCbegin = address
+#            self.LLCend = address + self.LLCSize
+#            self.readMem(address)
+#            self.writeCache(address)
+#            return
+#        self.LLCbegin = address
+#        self.LLCend = address + self.LLCSize
+#        self.MEMbegin = address
+#        self.MEMend = address + self.MEMSize
+#        self.readDisk(address)
+#        self.writeMem(address)
+#        self.writeCache(address)
+#
+#    def writeData(self, x1, y1, x2, y2):
+#        address = self.getMemAddress(x1, y1, x2, y2)
+#        if self.inLLC(x1, y1, x2, y2):
+#            self.writeCache(address)
+#            return
+#        if self.inMem(x1, y1, x2, y2):
+#            self.LLCbegin = address
+#            self.LLCend = address + self.LLCSize
+#            self.writeMem(address)
+#            return
+#        self.LLCbegin = address
+#        self.LLCend = address + self.LLCSize
+#        self.MEMbegin = address
+#        self.MEMend = address + self.MEMSize
+#        self.writeDisk(address)
+#    # HFQ end

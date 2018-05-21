@@ -6,10 +6,10 @@ import pagerank
 filename = 'input'
 
 if __name__ == "__main__":
-    P=16
+    P=32
     Q=8
-    cacheSize=2
-    memorySize=4
+    cacheSize=8
+    memorySize=16
 
     inputfile = open(filename, "r")
     line = inputfile.readline()
