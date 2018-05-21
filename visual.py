@@ -66,18 +66,22 @@ gridLeft = 50
 gridLength = 400
 
 cacheUp = gridUp 
-cacheLeft = gridLeft + gridLength + 50
+cacheLeft = gridLeft + gridLength + 150
 memoryUp = cacheUp + 200
 memoryLeft = cacheLeft
 diskUp = memoryUp + 200
 diskLeft = memoryLeft
-CMDWidth = 400
+CMWidth = 200
+DWidth = CMWidth * 2
 textInter = 100
+
+cacheLeft_1 = cacheLeft + CMWidth + 10
+memoryLeft_1 = memoryLeft + CMWidth + 10
 
 class GV(GV_interface):
     def __init__(self, _sizeV, _cacheSize, _memorySize, P, Q):
         global sizeV, cacheSize, memorySize, PSquareNum, QSquareNum, PSquareLength
-        global QSquareLength, CMDBlockWidth, CMDBlockNum, cacheBegin, memoryBegin
+        global QSquareLength, CMDBlockWidth, CMBlockNum, DBlockNum, cacheBeginR, memoryBeginR, cacheBeginW, memoryBeginW
         global cacheReadMiss, cacheWriteMiss, memoryReadMiss, memoryWriteMiss
         sizeV = _sizeV
         cacheSize = _cacheSize
@@ -86,11 +90,14 @@ class GV(GV_interface):
         QSquareNum = Q
         PSquareLength = gridLength / PSquareNum
         QSquareLength = gridLength / QSquareNum
-        CMDBlockWidth = min(min(CMDWidth / cacheSize, PSquareLength), 50)
-        CMDBlockNum = CMDWidth / CMDBlockWidth
+        CMDBlockWidth = min(min(CMWidth / cacheSize, PSquareLength), 50)
+        CMBlockNum = CMWidth / CMDBlockWidth
+        DBlockNum = DWidth / CMDBlockWidth
 
-        cacheBegin = 0
-        memoryBegin = 0
+        cacheBeginR = 0
+        cacheBeginW = 0
+        memoryBeginR = 0
+        memoryBeginW = 0
         cacheReadMiss = 0
         cacheWriteMiss = 0
         memoryReadMiss = 0
@@ -115,30 +122,44 @@ class GV(GV_interface):
                                          width=5)
         
         # draw cache
+        self.cv.create_text(cacheLeft - 50, cacheUp + 10, text="cache")
         for i in range(0, cacheSize):
             self.cv.create_rectangle(cacheLeft + i * CMDBlockWidth, cacheUp,
                                      cacheLeft + (i + 1) * CMDBlockWidth, cacheUp + CMDBlockWidth)
             self.cv.create_text(cacheLeft + i * CMDBlockWidth + CMDBlockWidth / 2,
-                                cacheUp + CMDBlockWidth / 2, text=str(i), tags=("cachetext"))        
+                                cacheUp + CMDBlockWidth / 2, text=str(i), tags=("cachetext_0"))  
+            self.cv.create_rectangle(cacheLeft_1 + i * CMDBlockWidth, cacheUp,
+                                     cacheLeft_1 + (i + 1) * CMDBlockWidth, cacheUp + CMDBlockWidth)
+            self.cv.create_text(cacheLeft_1 + i * CMDBlockWidth + CMDBlockWidth / 2,
+                                cacheUp + CMDBlockWidth / 2, text=str(i), tags=("cachetext_1"))        
 
         # draw memory
+        self.cv.create_text(memoryLeft - 50, memoryUp + 10, text="memory")
         for i in range(0, memorySize):
-            self.cv.create_rectangle(memoryLeft + i % CMDBlockNum * CMDBlockWidth,
-                                     memoryUp + i / CMDBlockNum * CMDBlockWidth,
-                                     memoryLeft + (i % CMDBlockNum+ 1) * CMDBlockWidth, 
-                                     memoryUp + (i / CMDBlockNum + 1) * CMDBlockWidth)
-            self.cv.create_text(memoryLeft + i % CMDBlockNum * CMDBlockWidth + CMDBlockWidth / 2,
-                                memoryUp + i / CMDBlockNum * CMDBlockWidth + CMDBlockWidth / 2,
-                                text=str(i), tags=("memorytext"))                
+            self.cv.create_rectangle(memoryLeft + i % CMBlockNum * CMDBlockWidth,
+                                     memoryUp + i / CMBlockNum * CMDBlockWidth,
+                                     memoryLeft + (i % CMBlockNum+ 1) * CMDBlockWidth, 
+                                     memoryUp + (i / CMBlockNum + 1) * CMDBlockWidth)
+            self.cv.create_text(memoryLeft + i % CMBlockNum * CMDBlockWidth + CMDBlockWidth / 2,
+                                memoryUp + i / CMBlockNum * CMDBlockWidth + CMDBlockWidth / 2,
+                                text=str(i), tags=("memorytext_0"))
+            self.cv.create_rectangle(memoryLeft_1 + i % CMBlockNum * CMDBlockWidth,
+                                     memoryUp + i / CMBlockNum * CMDBlockWidth,
+                                     memoryLeft_1 + (i % CMBlockNum+ 1) * CMDBlockWidth, 
+                                     memoryUp + (i / CMBlockNum + 1) * CMDBlockWidth)
+            self.cv.create_text(memoryLeft_1 + i % CMBlockNum * CMDBlockWidth + CMDBlockWidth / 2,
+                                memoryUp + i / CMBlockNum * CMDBlockWidth + CMDBlockWidth / 2,
+                                text=str(i), tags=("memorytext_1"))                
 
         # draw disk
+        self.cv.create_text(diskLeft - 50, diskUp + 10, text="disk")
         for i in range(0, sizeV):
-            self.cv.create_rectangle(diskLeft + i % CMDBlockNum * CMDBlockWidth,
-                                     diskUp + i / CMDBlockNum * CMDBlockWidth,
-                                     diskLeft + (i % CMDBlockNum + 1) * CMDBlockWidth, 
-                                     diskUp + (i / CMDBlockNum + 1) * CMDBlockWidth)
-            self.cv.create_text(diskLeft + i % CMDBlockNum * CMDBlockWidth + CMDBlockWidth / 2,
-                                diskUp + i / CMDBlockNum * CMDBlockWidth + CMDBlockWidth / 2, text=str(i))        
+            self.cv.create_rectangle(diskLeft + i % DBlockNum * CMDBlockWidth,
+                                     diskUp + i / DBlockNum * CMDBlockWidth,
+                                     diskLeft + (i % DBlockNum + 1) * CMDBlockWidth, 
+                                     diskUp + (i / DBlockNum + 1) * CMDBlockWidth)
+            self.cv.create_text(diskLeft + i % DBlockNum * CMDBlockWidth + CMDBlockWidth / 2,
+                                diskUp + i / DBlockNum * CMDBlockWidth + CMDBlockWidth / 2, text=str(i))        
 
         # highlight grid
         self.cv.create_rectangle(0, 0, PSquareLength, PSquareLength, outline='red',
@@ -157,10 +178,10 @@ class GV(GV_interface):
 
         # memory miss
         self.cv.create_text(memoryLeft + 60,
-                            memoryUp + math.ceil(1. * memorySize / CMDBlockNum) * CMDBlockWidth + 50,
+                            memoryUp + math.ceil(1. * memorySize / CMBlockNum) * CMDBlockWidth + 50,
                             text="read miss: " + str(0), font=("", font_size), tags=("mrm"))
         self.cv.create_text(memoryLeft + 270,
-                            memoryUp + math.ceil(1. * memorySize / CMDBlockNum) * CMDBlockWidth + 50,
+                            memoryUp + math.ceil(1. * memorySize / CMBlockNum) * CMDBlockWidth + 50,
                             text="write miss: " + str(0), font=("", font_size), tags=("mwm"))
 
         # self.highlightCache(0)
@@ -188,38 +209,38 @@ class GV(GV_interface):
     
     def readCache(self, v):
         print "readCache {}".format(v)
-        self.highlightCache(v - cacheBegin)
+        self.highlightCache(v - cacheBeginR)
 
     def writeCache(self, v):
         print "writeCache {}".format(v)
-        self.highlightCache(v - cacheBegin)
+        self.highlightCache(v - cacheBeginW)
 
     def readMemory(self, curCacheBegin, v):
         print "readMemory {} {}".format(curCacheBegin, v)
         self.updateCacheReadMiss()
-        self.setCacheBegin(curCacheBegin)
-        self.highlightMemory(v - memoryBegin)
+        self.setCacheBegin(curCacheBegin, 0)
+        self.highlightMemory(v - memoryBeginR)
 
     def writeMemory(self, curCacheBegin, v):
         print "writeMemory {} {}".format(curCacheBegin, v)
         self.updateCacheWriteMiss()
-        self.setCacheBegin(curCacheBegin)
-        self.highlightMemory(v - memoryBegin)
+        self.setCacheBegin(curCacheBegin, 1)
+        self.highlightMemory(v - memoryBeginW)
 
     def readDisk(self, curCacheBegin, curMemoryBegin, v):
         print "readDisk {} {} {}".format(curCacheBegin, curMemoryBegin, v)
         self.updateCacheReadMiss()
         self.updateMemoryReadMiss()
-        self.setCacheBegin(curCacheBegin)
-        self.setMemoryBegin(curMemoryBegin)
+        self.setCacheBegin(curCacheBegin, 0)
+        self.setMemoryBegin(curMemoryBegin, 0)
         self.highlightDisk(v)
 
     def writeDisk(self, curCacheBegin, curMemoryBegin, v):
         print "writeDisk {} {} {}".format(curCacheBegin, curMemoryBegin, v)
         self.updateCacheWriteMiss()
         self.updateMemoryWriteMiss()
-        self.setCacheBegin(curCacheBegin)
-        self.setMemoryBegin(curMemoryBegin)
+        self.setCacheBegin(curCacheBegin, 1)
+        self.setMemoryBegin(curMemoryBegin, 1)
         self.highlightDisk(v)
 
 
@@ -243,37 +264,47 @@ class GV(GV_interface):
         memoryWriteMiss += 1
         self.cv.itemconfig('mwm', text="write miss: " + str(memoryWriteMiss))
 
-    def setCacheBegin(self, v):
-        global cacheBegin
-        cacheBegin = v
-        self.cv.delete("cachetext")
+    def setCacheBegin(self, v, isWrite):
+        global cacheBeginR, cacheBeginW
+        if isWrite:
+            cacheBeginW = v
+        else:
+            cacheBeginR = v
+        tag = "cachetext_1" if isWrite else "cachetext_0"
+        left = cacheLeft_1 if isWrite else cacheLeft
+        self.cv.delete(tag)
         for i in range(0, cacheSize):
-            self.cv.create_text(cacheLeft + i * CMDBlockWidth + CMDBlockWidth / 2,
-                                cacheUp + CMDBlockWidth / 2, text=str(i + v), tags=("cachetext"))
+            self.cv.create_text(left + i * CMDBlockWidth + CMDBlockWidth / 2,
+                                cacheUp + CMDBlockWidth / 2, text=str(i + v), tags=(tag))
     
-    def setMemoryBegin(self, v):
-        global memoryBegin
-        memoryBegin = v
-        self.cv.delete("memorytext")
+    def setMemoryBegin(self, v, isWrite):
+        global memoryBeginR, memoryBeginW
+        if isWrite:
+            memoryBeginW = v
+        else:            
+            memoryBeginR = v
+        tag = "memorytext_1" if isWrite else "memorytext_0"
+        left = memoryLeft_1 if isWrite else memoryLeft
+        self.cv.delete(tag)
         for i in range(0, memorySize):
-            self.cv.create_text(memoryLeft + i % CMDBlockNum * CMDBlockWidth + CMDBlockWidth / 2,
-                                memoryUp + i / CMDBlockNum * CMDBlockWidth + CMDBlockWidth / 2,
-                                text=str(i + v), tags=("memorytext"))     
+            self.cv.create_text(left + i % CMBlockNum * CMDBlockWidth + CMDBlockWidth / 2,
+                                memoryUp + i / CMBlockNum * CMDBlockWidth + CMDBlockWidth / 2,
+                                text=str(i + v), tags=(tag))     
 
     def highlightCache(self, index):
         print "highlightCache {}".format(index)
-        self.highlightCMD(cacheLeft + index % CMDBlockNum * CMDBlockWidth,
-                          cacheUp + index / CMDBlockNum * CMDBlockWidth)
+        self.highlightCMD(cacheLeft + index % CMBlockNum * CMDBlockWidth,
+                          cacheUp + index / CMBlockNum * CMDBlockWidth)
         
     def highlightMemory(self, index):
         print "highlightMemory {}".format(index)
-        self.highlightCMD(memoryLeft + index % CMDBlockNum * CMDBlockWidth,
-                          memoryUp + index / CMDBlockNum * CMDBlockWidth)
+        self.highlightCMD(memoryLeft + index % CMBlockNum * CMDBlockWidth,
+                          memoryUp + index / CMBlockNum * CMDBlockWidth)
         
     def highlightDisk(self, v):
         print "highlightDisk {}".format(v)
-        self.highlightCMD(diskLeft + v % CMDBlockNum * CMDBlockWidth,
-                          diskUp + v / CMDBlockNum * CMDBlockWidth)
+        self.highlightCMD(diskLeft + v % DBlockNum * CMDBlockWidth,
+                          diskUp + v / DBlockNum * CMDBlockWidth)
 
     def highlightCMD(self, x, y):
         self.cv.coords('CMDhighlight', x, y, x + CMDBlockWidth, y + CMDBlockWidth)        
