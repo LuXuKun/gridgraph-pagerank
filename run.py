@@ -6,7 +6,9 @@ import pagerank
 filename = 'input'
 
 if __name__ == "__main__":
-    P=32
+    # 8
+    P=16
+    # 4
     Q=8
     cacheSize=8
     memorySize=16

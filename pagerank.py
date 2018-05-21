@@ -146,8 +146,8 @@ class PageRank:
 
     def do_pagerank_per_grid(self,GV=None,index=0,rankContinue=False):
         print "per grid index:{} continue:{} {} {}".format(index, rankContinue, self.xP, self.yP)
-        nextTimeInterval = 300
-        continueTimeInterval = 1
+        nextTimeInterval = 100
+        continueTimeInterval = 0
         if self.converged:
             print self.pr
             print 'finished after '+str(self.iterations)+' iterations!'
